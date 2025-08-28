@@ -1,6 +1,6 @@
 use std::path::PathBuf;
-use taskscheduler::server::ServerConfig;
-use taskscheduler::scheduler::SchedulerConfig;
+use celerity::server::ServerConfig;
+use celerity::scheduler::SchedulerConfig;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -12,7 +12,7 @@ pub struct Config {
 
 /// Parses the configuration file into a `toml::Table` (a hashmap).
 pub fn config() -> Result<Config, String> {
-    let mut config_dir = PathBuf::from("/etc/tasksd");
+    let mut config_dir = PathBuf::from("/etc/celerityd");
     config_dir.push("config.toml");
 
     config_dir

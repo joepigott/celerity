@@ -3,9 +3,9 @@ use std::path::PathBuf;
 use std::fs;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
-use taskscheduler::scheduler::Scheduler;
-use taskscheduler::server::Server;
-use taskscheduler::TaskQueue;
+use celerity::scheduler::Scheduler;
+use celerity::server::Server;
+use celerity::TaskQueue;
 
 mod config;
 
