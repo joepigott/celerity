@@ -1,10 +1,12 @@
-# Task Scheduler
+# Celerity
 
-Task Scheduler does what it says: it schedules tasks. This repository contains
-the shared resources required by the client and server, as well as some
-runtime-agnostic server implementation. I've also written reference 
-implementations for the [client](https://github.com/joepigott/tasks) and
-[server](https://github.com/joepigott/tasksd).
+Celerity (formerly Task Scheduler) is a smart to-do list that optimizes the 
+order in which you complete your tasks, and is based on real-world CPU 
+scheduling principles. This repository contains the shared resources required 
+by the client and server, as well as some runtime-agnostic server 
+implementation. I've also written reference implementations for the 
+[client](https://github.com/joepigott/celerity-cli) and 
+[server](https://github.com/joepigott/celerityd).
 
 ## Motivation
 
@@ -36,8 +38,8 @@ The API endpoints are as follows:
 ## Scheduling Algorithms
 
 If I'm being honest, I'm not exactly sure of the most efficient way to schedule
-tasks in a real-world, real-time scenario. So, the task scheduler is written in
-such a way that the actual scheduling algorithm used by the priority queue is
+tasks in a real-world, real-time scenario. So, Celerity is written in such a 
+way that the actual scheduling algorithm used by the priority queue is 
 hot-swappable; these are defined by the `Priority` trait. For example, 
 implementing a "shortest job first" priority algorithm amounts to implementing
 the following methods:

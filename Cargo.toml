@@ -1,8 +1,8 @@
 [package]
-name = "taskscheduler"
+name = "celerity"
 authors = ["Joe Pigott <joe@joepigott.dev>"]
 description = "A smart todo list that applies CPU scheduling logic to organize your tasks"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 
 [dependencies]

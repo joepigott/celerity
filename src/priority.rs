@@ -9,8 +9,8 @@ use serde::{Deserialize, Serialize};
 /// ## Example: `FIFO`
 /// ```rust
 /// use serde::{Serialize, Deserialize};
-/// use taskscheduler::priority::Priority;
-/// use taskscheduler::Task;
+/// use celerity::priority::Priority;
+/// use celerity::Task;
 ///
 /// #[derive(Clone, Serialize, Deserialize)]
 /// pub struct FIFO;
