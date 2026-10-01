@@ -8,7 +8,7 @@ version = "0.4.0"
 edition = "2021"
 
 [dependencies]
-celerity = { git = "https://github.com/joepigott/celerity.git", tag = "0.4.0" }
+celerity = { path = "../../packages/core" }
 piglog = { git = "https://git.joepigott.dev/pigroy/piglog.git" }
 tokio = { version = "1.43.0", features = ["macros", "rt", "rt-multi-thread", "signal"] }
 serde = { version = "1.0.217", features = ["serde_derive"] }

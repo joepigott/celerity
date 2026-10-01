@@ -13,7 +13,7 @@ path = "src/main.rs"
 clap = { version = "4.5.27", features = ["derive"] }
 dirs-next = "2.0.0"
 reqwest = { version = "0.12.12", features = ["blocking"] }
-celerity = { git = "https://github.com/joepigott/celerity.git", tag = "0.4.0" }
+celerity = { path = "../../packages/core" }
 toml = "0.8.19"
 color = { git = "https://git.joepigott.dev/pigroy/color.git" }
 serde = "1.0.217"
