@@ -1,6 +1,6 @@
 use clap::Parser;
 use cli::{Cli, Command};
-use color::term::Red;
+use colored::Colorize;
 use celerity::{NaiveTask, UpdateTask};
 
 mod cli;
@@ -11,7 +11,7 @@ mod util;
 fn main() {
     match dispatch() {
         Ok(result) => println!("{}", result.trim()),
-        Err(e) => eprintln!("{}: {}", Red("Error"), e),
+        Err(e) => eprintln!("{}: {}", "Error".red(), e),
     }
 }
 
