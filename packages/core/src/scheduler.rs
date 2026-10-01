@@ -1,6 +1,5 @@
 use crate::error::SchedulingError;
 use crate::{SharedQueue, Task};
-use log;
 use chrono::TimeDelta;
 use serde::Deserialize;
 use std::fs;

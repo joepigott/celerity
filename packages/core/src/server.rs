@@ -2,7 +2,6 @@ use crate::error::{IOError, SerializationError, ServerError, TaskNotFound};
 use crate::priority::Priority;
 use crate::vars;
 use crate::{NaiveTask, SharedQueue, Task, UpdateTask};
-use log;
 use serde::Deserialize;
 use std::convert::Infallible;
 use std::net::SocketAddr;

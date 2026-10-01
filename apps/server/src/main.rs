@@ -1,4 +1,3 @@
-use log;
 use std::path::PathBuf;
 use std::fs;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -11,6 +10,8 @@ mod config;
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+
     let config = config::config().expect("Unable to retrieve configuration.");
 
     let queue = Arc::new(Mutex::new(
