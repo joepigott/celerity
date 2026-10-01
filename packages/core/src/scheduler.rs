@@ -1,7 +1,7 @@
 use crate::error::SchedulingError;
 use crate::{SharedQueue, Task};
+use log;
 use chrono::TimeDelta;
-use piglog::{debug, error, info};
 use serde::Deserialize;
 use std::fs;
 use std::path::PathBuf;
@@ -45,7 +45,7 @@ impl Scheduler {
     /// should be set to `true` when the program exits, at which point all data
     /// will be serialized and written to disk.
     pub async fn run(&mut self, sigterm: Arc<AtomicBool>, config: SchedulerConfig) -> Result<(), SchedulingError> {
-        info!("Starting scheduler (disabled)...");
+        log::info!("Starting scheduler (disabled)...");
 
         let mut start = Instant::now();
         while !sigterm.load(Ordering::Relaxed) {
@@ -56,7 +56,7 @@ impl Scheduler {
                 self.active_task = queue.select();
 
                 if let Some(task) = self.active_task.as_mut() {
-                    debug!("Active task: {} (ID: {})", task.title, task.id);
+                    log::debug!("Active task: {} (ID: {})", task.title, task.id);
 
                     let task_mut = queue.get_mut(task.id).ok_or(SchedulingError(
                         "Active task is not in the queue.".to_string(),
@@ -67,11 +67,11 @@ impl Scheduler {
                     {
                         Some(duration) => task_mut.duration = duration,
                         None => {
-                            error!("Task duration overflowed! Something is seriously wrong.");
+                            log::error!("Task duration overflowed! Something is seriously wrong.");
                         }
                     }
                 } else {
-                    debug!("No active task.");
+                    log::debug!("No active task.");
                 }
             }
 
@@ -89,14 +89,14 @@ impl Scheduler {
 
         self.tasks.lock()?.enabled = false;
         self.save(&config.data_path)?;
-        info!("Exiting...");
+        log::info!("Exiting...");
 
         Ok(())
     }
 
     /// Serializes and writes the task data to disk.
     fn save(&self, path: &PathBuf) -> Result<(), SchedulingError> {
-        info!("Writing data to disk...");
+        log::info!("Writing data to disk...");
         let queue = self.tasks.lock()?;
         let data =
             serde_json::to_vec(&queue.clone()).map_err(|e| SchedulingError(e.to_string()))?;

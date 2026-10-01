@@ -1,4 +1,4 @@
-use piglog;
+use log;
 use std::path::PathBuf;
 use std::fs;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -28,17 +28,17 @@ async fn main() {
             match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()) {
                 Ok(s) => s,
                 Err(e) => {
-                    piglog::error!("{e}");
+                    log::error!("{e}");
                     return;
                 }
             };
 
         tokio::select! {
             _ = sigint => {
-                piglog::info!("Received SIGINT. Signaling thread to exit...");
+                log::info!("Received SIGINT. Signaling thread to exit...");
             },
             _ = sigterm.recv() => {
-                piglog::info!("Received SIGTERM. Signaling thread to exit...");
+                log::info!("Received SIGTERM. Signaling thread to exit...");
             }
         }
 
@@ -49,7 +49,7 @@ async fn main() {
     let sched_sigterm = Arc::clone(&sigterm);
     let sched_thread = tokio::spawn(async move {
         if let Err(e) = scheduler.run(Arc::clone(&sched_sigterm), config.scheduler).await {
-            piglog::error!("{e}");
+            log::error!("{e}");
             return;
         }
     });
@@ -57,20 +57,20 @@ async fn main() {
     // server thread
     let serv_thread = tokio::spawn(async move {
         if let Err(e) = server.run(config.server).await {
-            piglog::error!("{e}");
+            log::error!("{e}");
             return;
         }
     });
 
     // wait on scheduler thread
     if let Err(e) = sched_thread.await {
-        piglog::error!("{e}");
+        log::error!("{e}");
     };
 
     // server thread doesn't need to exit gracefully, so we can abort it
     serv_thread.abort();
 
-    piglog::info!("Exited.");
+    log::info!("Exited.");
 }
 
 fn recover_queue(storage: &PathBuf) -> Option<TaskQueue> {

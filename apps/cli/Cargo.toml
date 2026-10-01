@@ -15,7 +15,6 @@ dirs-next = "2.0.0"
 reqwest = { version = "0.12.12", features = ["blocking"] }
 celerity = { path = "../../packages/core" }
 toml = "0.8.19"
-color = { git = "https://git.joepigott.dev/pigroy/color.git" }
 serde = "1.0.217"
 serde_json = "1.0.138"
 chrono = "0.4.39"

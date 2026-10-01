@@ -9,11 +9,12 @@ edition = "2021"
 
 [dependencies]
 celerity = { path = "../../packages/core" }
-piglog = { git = "https://git.joepigott.dev/pigroy/piglog.git" }
 tokio = { version = "1.43.0", features = ["macros", "rt", "rt-multi-thread", "signal"] }
 serde = { version = "1.0.217", features = ["serde_derive"] }
 serde_json = "1.0.137"
 toml = "0.9.4"
+log = "0.4.34"
+env_logger = "0.11.11"
 
 [features]
 https = ["celerity/https"]

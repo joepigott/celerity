@@ -2,7 +2,7 @@ use crate::error::{IOError, SerializationError, ServerError, TaskNotFound};
 use crate::priority::Priority;
 use crate::vars;
 use crate::{NaiveTask, SharedQueue, Task, UpdateTask};
-use piglog::{error, info};
+use log;
 use serde::Deserialize;
 use std::convert::Infallible;
 use std::net::SocketAddr;
@@ -45,7 +45,7 @@ impl Server {
     /// *not* exit gracefully as it has no cleanup, so you should exit the
     /// thread forcibly through whatever async runtime you're using.
     pub async fn run(&mut self, config: ServerConfig) -> Result<(), ServerError> {
-        info!("Starting server...");
+        log::info!("Starting server...");
 
         let tasks: SharedQueue = Arc::clone(&self.tasks);
 
@@ -164,7 +164,7 @@ impl Server {
             return Err(ServerError("Address is already in use".to_string()));
         }
 
-        info!("Server listening on {}", config.address);
+        log::info!("Server listening on {}", config.address);
         #[cfg(feature = "https")]
         warp::serve(routes)
             .tls()
@@ -199,7 +199,7 @@ impl Server {
         task: NaiveTask,
         queue: SharedQueue,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        info!("Adding task {}", task.title);
+        log::info!("Adding task {}", task.title);
 
         let mut queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
         let task = Task::from_naive(task, queue.new_id());
@@ -214,7 +214,7 @@ impl Server {
     /// Replies with a serialized representation of the entire contents of the
     /// queue.
     async fn get_tasks(queue: SharedQueue) -> Result<impl warp::Reply, warp::Rejection> {
-        info!("Fetching tasks");
+        log::info!("Fetching tasks");
 
         let queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
 
@@ -233,13 +233,13 @@ impl Server {
         updates: UpdateTask,
         queue: SharedQueue,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        info!("Updating task {}", updates.id);
+        log::info!("Updating task {}", updates.id);
 
         let mut queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
         let task = match queue.get_mut(updates.id) {
             Some(task) => task,
             None => {
-                error!("Task {} does not exist", updates.id);
+                log::error!("Task {} does not exist", updates.id);
                 return Err(warp::reject::reject());
             }
         };
@@ -270,7 +270,7 @@ impl Server {
         id: usize,
         queue: SharedQueue,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        info!("Deleting task {id}");
+        log::info!("Deleting task {id}");
 
         let mut queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
         queue.delete(id)?;
@@ -283,7 +283,7 @@ impl Server {
 
     /// Enables the scheduler, which will start executing scheduling logic.
     async fn enable(queue: SharedQueue) -> Result<impl warp::Reply, warp::Rejection> {
-        info!("Enabling scheduler");
+        log::info!("Enabling scheduler");
 
         let mut queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
         queue.enabled = true;
@@ -296,7 +296,7 @@ impl Server {
 
     /// Disables the scheduler, which will stop executing scheduling logic.
     async fn disable(queue: SharedQueue) -> Result<impl warp::Reply, warp::Rejection> {
-        info!("Disabling scheduler");
+        log::info!("Disabling scheduler");
 
         let mut queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
         queue.enabled = false;
@@ -309,7 +309,7 @@ impl Server {
 
     /// Fetches the active task.
     async fn active(queue: SharedQueue) -> Result<impl warp::Reply, warp::Rejection> {
-        info!("Fetching active task");
+        log::info!("Fetching active task");
 
         let queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
         if let Some(task) = queue.select() {
@@ -321,7 +321,7 @@ impl Server {
 
     /// Fetches the scheduler status (enabled/disabled).
     async fn status(queue: SharedQueue) -> Result<impl warp::Reply, warp::Rejection> {
-        info!("Fetching scheduler status");
+        log::info!("Fetching scheduler status");
 
         let queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
         Ok(warp::reply::with_status(warp::reply::json(&queue.enabled), warp::http::StatusCode::OK))
@@ -332,7 +332,7 @@ impl Server {
         priority: Box<dyn Priority>,
         queue: SharedQueue,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        info!("Updating task queue priority");
+        log::info!("Updating task queue priority");
 
         let mut queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
         queue.priority = priority;
@@ -345,7 +345,7 @@ impl Server {
 
     /// Fetches the current scheduler priority
     async fn get_priority(queue: SharedQueue) -> Result<impl warp::Reply, warp::Rejection> {
-        info!("Fetching scheduler priority");
+        log::info!("Fetching scheduler priority");
 
         let queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
 
@@ -354,7 +354,7 @@ impl Server {
 
     /// Marks the task with the given ID as complete.
     async fn complete(id: usize, queue: SharedQueue) -> Result<impl warp::Reply, warp::Rejection> {
-        info!("Marking task {id} as complete");
+        log::info!("Marking task {id} as complete");
 
         let mut queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
         let task = queue
@@ -384,7 +384,7 @@ impl Server {
         id: usize,
         queue: SharedQueue,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        info!("Deleting task {id}");
+        log::info!("Deleting task {id}");
 
         let mut queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
         queue.delete_completed(id)?;
@@ -410,7 +410,7 @@ impl Server {
             message = "The specified task doesn't exist";
             code = warp::http::StatusCode::NOT_FOUND;
         } else {
-            piglog::error!("Critical: {:?}", err);
+            log::error!("Critical: {:?}", err);
             message = "An unknown error occurred. Sorry!";
             code = warp::http::StatusCode::INTERNAL_SERVER_ERROR;
         }
