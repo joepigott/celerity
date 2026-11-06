@@ -2,11 +2,14 @@ use std::path::PathBuf;
 use std::fs;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
-use celerity::scheduler::Scheduler;
-use celerity::server::Server;
 use celerity::TaskQueue;
+use crate::server::Server;
+use crate::scheduler::Scheduler;
 
 mod config;
+mod server;
+mod scheduler;
+mod error;
 
 #[tokio::main]
 async fn main() {

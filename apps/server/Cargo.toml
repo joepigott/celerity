@@ -15,6 +15,8 @@ serde_json = "1.0.137"
 toml = "0.9.4"
 log = "0.4.34"
 env_logger = "0.11.11"
+warp = { version = "0.3.7" }
+chrono = "0.4.45"
 
 [features]
-https = ["celerity/https"]
+https = ["warp/tls"]

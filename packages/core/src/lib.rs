@@ -7,8 +7,6 @@ use std::sync::{Arc, Mutex};
 
 pub mod error;
 pub mod priority;
-pub mod scheduler;
-pub mod server;
 pub mod vars;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
@@ -52,7 +50,7 @@ impl FromStr for PriorityLevel {
 /// deadline, duration, and priority.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Task {
-    id: usize,
+    pub id: usize,
     pub title: String,
     pub deadline: NaiveDateTime,
     pub duration: Duration,
@@ -191,9 +189,9 @@ impl UpdateTask {
 /// changes the selection algorithm.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct TaskQueue {
-    tasks: Vec<Task>,
-    completed: Vec<Task>,
-    priority: Box<dyn Priority>,
+    pub tasks: Vec<Task>,
+    pub completed: Vec<Task>,
+    pub priority: Box<dyn Priority>,
     pub enabled: bool,
 }
 

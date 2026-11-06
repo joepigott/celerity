@@ -1,15 +1,20 @@
-use crate::error::{IOError, SerializationError, ServerError, TaskNotFound};
-use crate::priority::Priority;
-use crate::vars;
-use crate::{NaiveTask, SharedQueue, Task, UpdateTask};
+use celerity::error::TaskNotFound;
+use celerity::priority::Priority;
+use celerity::vars;
+use celerity::{NaiveTask, SharedQueue, Task, UpdateTask};
 use serde::Deserialize;
 use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use warp::Filter;
+use crate::error::{IOError, SerializationError, ServerError, RejectTaskNotFound};
 
 #[cfg(feature = "https")]
 use std::path::PathBuf;
+
+impl warp::reject::Reject for SerializationError {}
+impl warp::reject::Reject for IOError {}
+impl warp::reject::Reject for RejectTaskNotFound {}
 
 /// Server configuration fields defined by the user
 #[derive(Deserialize)]
@@ -223,7 +228,7 @@ impl Server {
                 warp::http::StatusCode::OK
             ))
         } else {
-            Err(warp::reject::custom(TaskNotFound))
+            Err(warp::reject::custom(RejectTaskNotFound(TaskNotFound)))
         }
     }
 
@@ -272,7 +277,9 @@ impl Server {
         log::info!("Deleting task {id}");
 
         let mut queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
-        queue.delete(id)?;
+        queue.delete(id).map_err(|err| match err {
+            TaskNotFound => warp::reject::custom(RejectTaskNotFound(TaskNotFound))
+        })?;
 
         Ok(warp::reply::with_status(
             warp::reply::json(&"Item successfully deleted"),
@@ -314,7 +321,7 @@ impl Server {
         if let Some(task) = queue.select() {
             Ok(warp::reply::with_status(warp::reply::json(&task), warp::http::StatusCode::OK))
         } else {
-            Err(warp::reject::custom(TaskNotFound))
+            Err(warp::reject::custom(RejectTaskNotFound(TaskNotFound)))
         }
     }
 
@@ -358,11 +365,11 @@ impl Server {
         let mut queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
         let task = queue
             .get_mut(id)
-            .ok_or(warp::reject::custom(TaskNotFound))?
+            .ok_or(warp::reject::custom(RejectTaskNotFound(TaskNotFound)))?
             .to_owned();
         queue
             .delete(task.id)
-            .map_err(|_| warp::reject::custom(TaskNotFound))?;
+            .map_err(|_| warp::reject::custom(RejectTaskNotFound(TaskNotFound)))?;
         let c_task = Task::new(
             queue.new_id_completed(),
             task.title,
@@ -386,7 +393,9 @@ impl Server {
         log::info!("Deleting task {id}");
 
         let mut queue = queue.lock().map_err(|_| warp::reject::custom(IOError))?;
-        queue.delete_completed(id)?;
+        queue.delete_completed(id).map_err(|err| match err{
+            TaskNotFound => warp::reject::custom(RejectTaskNotFound(TaskNotFound)),
+        })?;
 
         Ok(warp::reply::with_status(
             warp::reply::json(&"Item successfully deleted"),

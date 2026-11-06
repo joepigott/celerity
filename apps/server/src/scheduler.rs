@@ -1,5 +1,4 @@
-use crate::error::SchedulingError;
-use crate::{SharedQueue, Task};
+use celerity::{SharedQueue, Task};
 use chrono::TimeDelta;
 use serde::Deserialize;
 use std::fs;
@@ -8,6 +7,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
+use crate::error::SchedulingError;
 
 /// Scheduler configuration values defined by the user or system
 #[derive(Deserialize)]

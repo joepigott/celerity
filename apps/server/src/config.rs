@@ -1,7 +1,7 @@
 use std::path::PathBuf;
-use celerity::server::ServerConfig;
-use celerity::scheduler::SchedulerConfig;
 use serde::Deserialize;
+use crate::server::ServerConfig;
+use crate::scheduler::SchedulerConfig;
 
 #[derive(Deserialize)]
 /// Struct representation of the server configuration.
